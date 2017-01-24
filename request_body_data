@@ -1,0 +1,56 @@
+Content-Type: multipart/form-data; boundary=---------------------------11651551972007502633981174814
+Content-Length: 1589
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="district_id"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="plot"
+
+碧水云天
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="sell_money_from"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="sell_money_to"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="set_type"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="organize_type"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="broker_title"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="buildarea_from"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="buildarea_to"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="house_from_cert_id"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="audit_on"
+
+
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="design_usage"
+
+1
+-----------------------------11651551972007502633981174814
+Content-Disposition: form-data; name="postback"
+
+1
+-----------------------------11651551972007502633981174814--
