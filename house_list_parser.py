@@ -1,24 +1,24 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from HTMLParser import HTMLParser
+import HTMLParser
 
 
-class HouseListParser(HTMLParser):
+class HouseListParser(HTMLParser.HTMLParser):
     def __init__(self):
-        HTMLParser.__init__(self)
+        HTMLParser.HTMLParser.__init__(self)
         self.path = []
-        self.tbody_count = 0
+        self.tbody_depth = 0
         self.house_list = []
 
     def handle_starttag(self, tag, attrs):
         if tag == "tbody":
-            self.tbody_count += 1
+            self.tbody_depth += 1
 
-        if self.tbody_count == 2 and tag == "tr":
+        if self.tbody_depth == 2 and tag == "tr":
             self.house_list.append([])
 
-        if self.tbody_count == 2 and tag == "a":
+        if self.tbody_depth == 2 and tag == "a":
             self.house_list[-1].append(attrs[0][1])
 
     def handle_endtag(self, tag):
@@ -29,5 +29,5 @@ class HouseListParser(HTMLParser):
         if not data:
             return
 
-        if self.tbody_count == 2:
+        if self.tbody_depth == 2:
             self.house_list[-1].append(data)
