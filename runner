@@ -1,2 +1,1 @@
-python fetcher.py > house_list_webcontent
-python parser.py
+python main.py

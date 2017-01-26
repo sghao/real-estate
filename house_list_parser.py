@@ -31,12 +31,3 @@ class HouseListParser(HTMLParser):
 
         if self.tbody_count == 2:
             self.house_list[-1].append(data)
-
-
-with open("house_list_webcontent2", "r") as f:
-    content = f.read()
-
-parser = HouseListParser()
-parser.feed(content)
-parser.close()
-print "\n".join(["\t".join(h) for h in parser.house_list])
