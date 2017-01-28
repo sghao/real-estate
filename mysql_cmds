@@ -1,0 +1,14 @@
+# DDL
+
+CREATE TABLE house_list(
+   verification_id INT NOT NULL,
+   district VARCHAR(255) DEFAULT NULL,
+   compound_name VARCHAR(255) DEFAULT NULL,
+   house_layout VARCHAR(255) DEFAULT NULL,
+   house_area FLOAT DEFAULT NULL,
+   proposed_price FLOAT DEFAULT NULL,
+   agency VARCHAR(255) DEFAULT NULL,
+   date DATE DEFAULT NULL,
+   house_id INT DEFAULT NULL,
+   PRIMARY KEY (verification_id)
+) ENGINE=InnoDB
