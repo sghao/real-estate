@@ -2,6 +2,8 @@
 # coding: utf-8
 
 import argparse
+import logging
+import logging.config
 import os
 import random
 import sys
@@ -14,8 +16,11 @@ import mysql_storage
 
 URL_PATTERN = "http://210.75.213.188/shh/portal/bjjs2016/audit_house_list.aspx?pagenumber=%d&pagesize=10"
 
+log = None
+
 
 def parse_args():
+    log.info("parsing args")
     parser = argparse.ArgumentParser(
             description="real estate transaction crawler")
     parser.add_argument("--persistent_storage", choices=["mysql"],
@@ -50,13 +55,17 @@ def fetch_webcontent(url):
 
 
 def main():
+    global log
+    logging.config.fileConfig("logging.conf")
+    log = logging.getLogger("main")
+
     args = parse_args()
 
     init()
     storage = init_storage(args)
 
     for page in xrange(1852, 0, -1):
-        sys.stderr.write("Page: %d\n" % page)
+        log.info("House list page: %d", page)
 
         # TODO(sghao): During the Chinese New Year, the service is temporarily
         # unavailable. Switching to local cache to unblock further development.
@@ -69,13 +78,19 @@ def main():
         with open("data/page-%05d" % page, "r") as f:
             webcontent = f.read()
 
+        log.info("Parsing house list.")
         parser = house_list_parser.HouseListParser()
         parser.feed(webcontent)
         parser.close()
 
         house_list = parser.get_house_list()
+        log.info("Parsed house list, got %d houses.", len(house_list))
+
+        log.info("Persisting house list: %s",
+                 ", ".join([str(h[0]) for h in house_list]))
         storage.insert_house_list(house_list)
 
+        log.info("Sleeping between fetch.")
         time.sleep(random.randint(3, 10))
 
 
