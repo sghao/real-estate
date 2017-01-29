@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+import argparse
 import os
 import random
 import sys
@@ -14,9 +15,33 @@ import mysql_storage
 URL_PATTERN = "http://210.75.213.188/shh/portal/bjjs2016/audit_house_list.aspx?pagenumber=%d&pagesize=10"
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+            description="real estate transaction crawler")
+    parser.add_argument("--persistent_storage", choices=["mysql"],
+                        default=["mysql"], help="Persistent storage type")
+
+    # When --persistent_storage is mysql, specify host/user/password.
+    parser.add_argument("--mysql_hostname", default="localhost")
+    parser.add_argument("--mysql_username")
+    parser.add_argument("--mysql_password")
+    parser.add_argument("--mysql_database", default="real_estate")
+
+    return parser.parse_args()
+
+
 def init():
     if not os.path.exists("data"):
         os.mkdir("data")
+
+
+def init_storage(args):
+    if args.persistent_storage == "mysql":
+        return mysql_storage.MysqlStorage(
+                args.mysql_hostname,
+                args.mysql_username,
+                args.mysql_password,
+                args.mysql_database)
 
 
 def fetch_webcontent(url):
@@ -25,10 +50,10 @@ def fetch_webcontent(url):
 
 
 def main():
-    init()
+    args = parse_args()
 
-    # TODO(sghao): Find a better way to pass (or config) username/password.
-    storage = mysql_storage.MysqlStorage("localhost", "********", "********", "real_estate")
+    init()
+    storage = init_storage(args)
 
     for page in xrange(1852, 0, -1):
         sys.stderr.write("Page: %d\n" % page)
