@@ -15,6 +15,10 @@ class MysqlStorage:
         self.db = MySQLdb.connect(host, user, password, database)
 
     def insert_house_list(self, house_list):
+        # TODO(sghao): Re-write house list insertion logic in the same way as
+        # house detail insertion logic, i.e. using dictionary to pass around
+        # schemaful object, rather than an array of schemaless object, relying
+        # on consistent interpretation in different circumstances.
         self.log.info("Inserting house list into mysql, len(house_list)=%d.",
                       len(house_list))
 
@@ -51,3 +55,46 @@ class MysqlStorage:
                 house_id)
             VALUES (%s, '%s', '%s', '%s', %s, %s, '%s', '%s', %s)
         """ % tuple(house)
+
+    def insert_house_detail(self, house_detail):
+        self.log.info("Inserting house detail: house_id=%d",
+                      house_detail["house_id"])
+
+        sql = self._get_insert_statement(
+            table="house_detail",
+            ignore_duplicate=True,
+            column_values=house_detail)
+
+        cursor = self.db.cursor()
+        result = cursor.execute(sql)
+
+        house_id = house_detail["house_id"]
+        if result == 0:
+            self.log.info("Ignored duplicate house: house_id=%d", house_id)
+        elif result == 1:
+            self.log.info(
+                "Successfully inserted house into house_detail: house_id=%d",
+                house_id)
+        else:
+            self.log.fatal(
+                "Unexpected result while inserting house into house_detail: "
+                "%d, %d", house_id, result)
+
+        self.db.commit()
+
+    def _get_insert_statement(
+            self, table, column_values, ignore_duplicate=False):
+        columns = ", ".join(column_values.keys())
+        values = ", ".join([
+            "'%s'" % v if isinstance(v, str) else "%s" % v
+            for v in column_values.values()])
+        ignore_duplicate_str = "IGNORE" if ignore_duplicate else ""
+
+        return """
+            INSERT %(ignore_duplicate_str)s INTO %(table)s(
+                %(columns)s
+            )
+            VALUES (
+                %(values)s
+            )
+        """ % locals()

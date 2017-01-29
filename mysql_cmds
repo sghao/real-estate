@@ -1,14 +1,38 @@
 # DDL
 
 CREATE TABLE house_list(
-   verification_id INT NOT NULL,
-   district VARCHAR(255) DEFAULT NULL,
-   compound_name VARCHAR(255) DEFAULT NULL,
-   house_layout VARCHAR(255) DEFAULT NULL,
-   house_area FLOAT DEFAULT NULL,
-   proposed_price FLOAT DEFAULT NULL,
-   agency VARCHAR(255) DEFAULT NULL,
-   date DATE DEFAULT NULL,
-   house_id INT DEFAULT NULL,
-   PRIMARY KEY (verification_id)
-) ENGINE=InnoDB
+    verification_id INT NOT NULL,
+    district VARCHAR(255) DEFAULT NULL,
+    compound_name VARCHAR(255) DEFAULT NULL,
+    house_layout VARCHAR(255) DEFAULT NULL,
+    house_area FLOAT DEFAULT NULL,
+    proposed_price FLOAT DEFAULT NULL,
+    agency VARCHAR(255) DEFAULT NULL,
+    date DATE DEFAULT NULL,
+    house_id INT DEFAULT NULL,
+    PRIMARY KEY (verification_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE house_detail(
+    house_id INT NOT NULL,
+    verification_id INT NOT NULL,
+    district VARCHAR(255) DEFAULT NULL,
+    compound_name VARCHAR(255) DEFAULT NULL,
+    house_orientation VARCHAR(255) DEFAULT NULL,
+    house_layout VARCHAR(255) DEFAULT NULL,
+    house_area FLOAT DEFAULT NULL,
+    house_floor VARCHAR(255) DEFAULT NULL,
+    house_total_floor VARCHAR(255) DEFAULT NULL,
+    completion_year INT DEFAULT NULL,
+    planned_use VARCHAR(255) DEFAULT NULL,
+    decoration VARCHAR(255) DEFAULT NULL,
+    proposed_price FLOAT DEFAULT NULL,
+    agency VARCHAR(255) DEFAULT NULL,
+    agency_phone VARCHAR(255) DEFAULT NULL,
+    agent VARCHAR(255) DEFAULT NULL,
+    agent_phone VARCHAR(255) DEFAULT NULL,
+    ownership_state VARCHAR(255) DEFAULT NULL,
+    mortgage_state VARCHAR(255) DEFAULT NULL,
+    seal_state VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (house_id)
+) ENGINE=InnoDB;

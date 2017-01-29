@@ -10,7 +10,7 @@ import sys
 import time
 import urllib2
 
-import house_list_parser
+import audit_house_parser
 import mysql_storage
 
 
@@ -23,6 +23,10 @@ def parse_args():
     log.info("parsing args")
     parser = argparse.ArgumentParser(
             description="real estate transaction crawler")
+
+    parser.add_argument("--action",
+                        choices=["crawl_house_list", "crawl_house_detail"])
+
     parser.add_argument("--persistent_storage", choices=["mysql"],
                         default=["mysql"], help="Persistent storage type")
 
@@ -35,7 +39,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def init():
+def init_localdir():
     if not os.path.exists("data"):
         os.mkdir("data")
 
@@ -54,18 +58,12 @@ def fetch_webcontent(url):
     return webcontent
 
 
-def main():
-    global log
-    logging.config.fileConfig("logging.conf")
-    log = logging.getLogger("main")
-
-    args = parse_args()
-
-    init()
+def crawl_house_list(args):
+    init_localdir()
     storage = init_storage(args)
 
     for page in xrange(1852, 0, -1):
-        log.info("House list page: %d", page)
+        log.info("Begin crawl house list page: page=%d", page)
 
         # TODO(sghao): During the Chinese New Year, the service is temporarily
         # unavailable. Switching to local cache to unblock further development.
@@ -79,7 +77,7 @@ def main():
             webcontent = f.read()
 
         log.info("Parsing house list.")
-        parser = house_list_parser.HouseListParser()
+        parser = audit_house_parser.HouseListParser()
         parser.feed(webcontent)
         parser.close()
 
@@ -90,8 +88,54 @@ def main():
                  ", ".join([str(h[0]) for h in house_list]))
         storage.insert_house_list(house_list)
 
-        log.info("Sleeping between fetch.")
+        log.info("Sleeping between crawl.")
         time.sleep(random.randint(3, 10))
+
+
+def crawl_house_detail(args):
+    init_localdir()
+    storage = init_storage(args)
+
+    # TODO(sghao): Find a way to loop over all house ids that we haven't
+    # crawled.
+    house_ids = [1771877]
+
+    for house_id in house_ids:
+        log.info("Begin crawl house detail page: house_id=%d", house_id)
+
+        # TODO(sghao): During the Chinese New Year, the service is temporarily
+        # unavailable. Using local cache instead for development.
+        with open("data/house_detail-%d" % house_id, "r") as f:
+            webcontent = f.read()
+
+        log.info("Parsing house detail: %d", house_id)
+        parser = audit_house_parser.HouseDetailParser()
+        parser.feed(webcontent)
+        parser.close()
+
+        house_detail = parser.get_house_detail()
+        # Amend the house_id since house detail page doesn't have this.
+        house_detail["house_id"] = house_id
+        log.info("Parsed house detail: %d", house_id)
+
+        log.info("Persisting house detail: %d", house_id)
+        storage.insert_house_detail(house_detail)
+
+        log.info("Sleeping between crawl.")
+        time.sleep(random.randint(3, 10))
+
+
+def main():
+    global log
+    logging.config.fileConfig("logging.conf")
+    log = logging.getLogger("main")
+
+    args = parse_args()
+
+    if args.action == "crawl_house_list":
+        crawl_house_list(args)
+    elif args.action == "crawl_house_detail":
+        crawl_house_detail(args)
 
 
 if __name__ == "__main__":
