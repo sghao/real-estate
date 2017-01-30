@@ -96,9 +96,9 @@ def crawl_house_detail(args):
     init_localdir()
     storage = init_storage(args)
 
-    # TODO(sghao): Find a way to loop over all house ids that we haven't
-    # crawled.
-    house_ids = [1771877]
+    house_ids = storage.get_house_details_to_update()
+    log.info("Got %d house_ids with rows absent from house_detail table.",
+             len(house_ids))
 
     for house_id in house_ids:
         log.info("Begin crawl house detail page: house_id=%d", house_id)

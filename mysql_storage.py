@@ -98,3 +98,24 @@ class MysqlStorage:
                 %(values)s
             )
         """ % locals()
+
+    def get_house_details_to_update(self):
+        """ Return a list of known house ids absent from house_detail table.
+
+        We iterate over this list to crawl / parse / store house detail.
+        Effectively, this is the list of house ids that are in house_list but
+        not in house_detail.
+        """
+        sql = """
+            SELECT house_id
+            FROM house_list
+            WHERE
+                house_id IS NOT NULL
+              AND
+                house_id NOT IN (SELECT house_id FROM house_detail)
+        """
+        cursor = self.db.cursor()
+        count = cursor.execute(sql)
+        result = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        return result
