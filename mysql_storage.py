@@ -14,7 +14,7 @@ class MysqlStorage:
                       host, user, database)
         self.db = MySQLdb.connect(host, user, password, database)
 
-    def insert_house_list(self, house_list):
+    def insert_bjjs_house_list(self, house_list):
         # TODO(sghao): Re-write house list insertion logic in the same way as
         # house detail insertion logic, i.e. using dictionary to pass around
         # schemaful object, rather than an array of schemaless object, relying
@@ -43,7 +43,7 @@ class MysqlStorage:
 
     def _get_insert_house_statements(self, house):
         return """
-            INSERT IGNORE INTO house_list(
+            INSERT IGNORE INTO bjjs_house_list(
                 verification_id,
                 district,
                 compound_name,
@@ -56,12 +56,12 @@ class MysqlStorage:
             VALUES (%s, '%s', '%s', '%s', %s, %s, '%s', '%s', %s)
         """ % tuple(house)
 
-    def insert_house_detail(self, house_detail):
+    def insert_bjjs_house_detail(self, house_detail):
         self.log.info("Inserting house detail: house_id=%d",
                       house_detail["house_id"])
 
         sql = self._get_insert_statement(
-            table="house_detail",
+            table="bjjs_house_detail",
             ignore_duplicate=True,
             column_values=house_detail)
 
@@ -99,20 +99,20 @@ class MysqlStorage:
             )
         """ % locals()
 
-    def get_house_details_to_update(self):
-        """ Return a list of known house ids absent from house_detail table.
+    def get_bjjs_house_details_to_update(self):
+        """ Return a list of known house ids absent from bjjs_house_detail table
 
         We iterate over this list to crawl / parse / store house detail.
-        Effectively, this is the list of house ids that are in house_list but
-        not in house_detail.
+        Effectively, this is the list of house ids that are in bjjs_house_list
+        but not in bjjs_house_detail.
         """
         sql = """
             SELECT house_id
-            FROM house_list
+            FROM bjjs_house_list
             WHERE
                 house_id IS NOT NULL
               AND
-                house_id NOT IN (SELECT house_id FROM house_detail)
+                house_id NOT IN (SELECT house_id FROM bjjs_house_detail)
         """
         cursor = self.db.cursor()
         count = cursor.execute(sql)

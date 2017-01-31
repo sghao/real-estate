@@ -10,7 +10,7 @@ import sys
 import time
 import urllib2
 
-import audit_house_parser
+import bjjs_parser
 import mysql_storage
 
 
@@ -22,10 +22,11 @@ log = None
 def parse_args():
     log.info("parsing args")
     parser = argparse.ArgumentParser(
-            description="real estate transaction crawler")
+        description="real estate transaction crawler")
 
-    parser.add_argument("--action",
-                        choices=["crawl_house_list", "crawl_house_detail"])
+    parser.add_argument(
+        "--action",
+        choices=["crawl_bjjs_house_list", "crawl_bjjs_house_detail"])
 
     parser.add_argument("--persistent_storage", choices=["mysql"],
                         default=["mysql"], help="Persistent storage type")
@@ -58,7 +59,7 @@ def fetch_webcontent(url):
     return webcontent
 
 
-def crawl_house_list(args):
+def crawl_bjjs_house_list(args):
     init_localdir()
     storage = init_storage(args)
 
@@ -77,7 +78,7 @@ def crawl_house_list(args):
             webcontent = f.read()
 
         log.info("Parsing house list.")
-        parser = audit_house_parser.HouseListParser()
+        parser = bjjs_parser.HouseListParser()
         parser.feed(webcontent)
         parser.close()
 
@@ -86,17 +87,17 @@ def crawl_house_list(args):
 
         log.info("Persisting house list: %s",
                  ", ".join([str(h[0]) for h in house_list]))
-        storage.insert_house_list(house_list)
+        storage.insert_bjjs_house_list(house_list)
 
         log.info("Sleeping between crawl.")
         time.sleep(random.randint(3, 10))
 
 
-def crawl_house_detail(args):
+def crawl_bjjs_house_detail(args):
     init_localdir()
     storage = init_storage(args)
 
-    house_ids = storage.get_house_details_to_update()
+    house_ids = storage.get_bjjs_house_details_to_update()
     log.info("Got %d house_ids with rows absent from house_detail table.",
              len(house_ids))
 
@@ -109,7 +110,7 @@ def crawl_house_detail(args):
             webcontent = f.read()
 
         log.info("Parsing house detail: %d", house_id)
-        parser = audit_house_parser.HouseDetailParser()
+        parser = bjjs_parser.HouseDetailParser()
         parser.feed(webcontent)
         parser.close()
 
@@ -119,7 +120,7 @@ def crawl_house_detail(args):
         log.info("Parsed house detail: %d", house_id)
 
         log.info("Persisting house detail: %d", house_id)
-        storage.insert_house_detail(house_detail)
+        storage.insert_bjjs_house_detail(house_detail)
 
         log.info("Sleeping between crawl.")
         time.sleep(random.randint(3, 10))
@@ -132,10 +133,10 @@ def main():
 
     args = parse_args()
 
-    if args.action == "crawl_house_list":
-        crawl_house_list(args)
-    elif args.action == "crawl_house_detail":
-        crawl_house_detail(args)
+    if args.action == "crawl_bjjs_house_list":
+        crawl_bjjs_house_list(args)
+    elif args.action == "crawl_bjjs_house_detail":
+        crawl_bjjs_house_detail(args)
 
 
 if __name__ == "__main__":

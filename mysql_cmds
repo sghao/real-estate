@@ -1,6 +1,6 @@
 # DDL
 
-CREATE TABLE house_list(
+CREATE TABLE bjjs_house_list(
     verification_id INT NOT NULL,
     district VARCHAR(255) DEFAULT NULL,
     compound_name VARCHAR(255) DEFAULT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE house_list(
     PRIMARY KEY (verification_id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE house_detail(
+CREATE TABLE bjjs_house_detail(
     house_id INT NOT NULL,
     verification_id INT NOT NULL,
     district VARCHAR(255) DEFAULT NULL,
