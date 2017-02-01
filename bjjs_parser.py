@@ -80,7 +80,7 @@ class HouseDetailParser(HTMLParser.HTMLParser):
     def __init__(self):
         HTMLParser.HTMLParser.__init__(self)
 
-        self.log = logging.getLogger("HouseDetailParser")
+        self.log = logging.getLogger("bjjs_parser.HouseDetailParser")
 
         self.tbody_depth = 0
         self.last_tag = None

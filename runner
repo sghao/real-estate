@@ -4,3 +4,5 @@ scl enable python27
 python2.7 main.py --action=crawl_bjjs_house_list --persistent_storage=mysql --mysql_username=******** --mysql_password=********
 
 python2.7 main.py --action=crawl_bjjs_house_detail --persistent_storage=mysql --mysql_username=******** --mysql_password=********
+
+python2.7 main.py --action=crawl_lianjia --persistent_storage=mysql --mysql_username=******** --mysql_password=********

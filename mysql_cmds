@@ -36,3 +36,27 @@ CREATE TABLE bjjs_house_detail(
     seal_state VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (house_id)
 ) ENGINE=InnoDB;
+
+CREATE TABLE lianjia_house_list(
+    house_id BIGINT NOT NULL,
+    region VARCHAR(255) DEFAULT NULL,
+    location_near VARCHAR(255) DEFAULT NULL,
+    compound_name VARCHAR(255) DEFAULT NULL,
+    completion_year INT DEFAULT NULL,
+    building_type VARCHAR(255) DEFAULT NULL,
+    house_orientation VARCHAR(255) DEFAULT NULL,
+    house_layout VARCHAR(255) DEFAULT NULL,
+    house_area FLOAT DEFAULT NULL,
+    house_floor VARCHAR(255) DEFAULT NULL,
+    house_total_floor INT DEFAULT NULL,
+    decoration VARCHAR(255) DEFAULT NULL,
+    asking_total_price FLOAT DEFAULT NULL,
+    asking_unit_price FLOAT DEFAULT NULL,
+    elevator VARCHAR(255) DEFAULT NULL,
+    followers_count INT DEFAULT NULL,
+    visitors_count INT DEFAULT NULL,
+    posted_date DATE DEFAULT NULL,
+    crawled_date DATE DEFAULT NULL,
+    tags VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (house_id)
+) ENGINE=InnoDB;
