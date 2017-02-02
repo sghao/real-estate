@@ -1,5 +1,5 @@
 # To enable python27 on Centos.
-scl enable python27
+scl enable python27 bash
 
 python2.7 main.py --action=crawl_bjjs_house_list --persistent_storage=mysql --mysql_username=******** --mysql_password=********
 

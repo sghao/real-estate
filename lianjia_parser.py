@@ -58,7 +58,8 @@ class HouseListParser(HTMLParser.HTMLParser):
 
         if len(self.house_list_raw) <= count:
             self.house_list_raw.append([])
-        self.house_list_raw[count].append(path_str + data)
+        tag_prefix = "tag:" if path_str else ""
+        self.house_list_raw[count].append(tag_prefix + data)
 
     def get_house_list(self):
         return [
@@ -75,12 +76,12 @@ class HouseListParser(HTMLParser.HTMLParser):
           低楼层(共22层)2009年建板塔结合  -
           清河
           9人关注 / 共0次带看 / 8天以前发布
-          span距离8号线永泰庄站1119米
-          span房本满五年
-          span435
+          tag:距离8号线永泰庄站1119米
+          tag:房本满五年
+          tag:435
           万
-          span单价69712元/平米
-          span关注
+          tag:单价69712元/平米
+          tag:关注
         ]
 
         Parsed and returned result: {
@@ -107,51 +108,79 @@ class HouseListParser(HTMLParser.HTMLParser):
         """
         house = {"house_id": house_id}
 
-        no_spans = [s for s in raw if not s.startswith("span")]
-        house["compound_name"] = no_spans[1]
-        m = re.match(r"^(.*楼层)\(共(\d+)层\)(\d+)年建(.*)  -$",
-                     no_spans[3])
+        non_tag = [s for s in raw if not s.startswith("tag:")]
+        house["compound_name"] = non_tag[1]
+        # Parse non_tag[3], example values:
+        #   "低楼层(共6层)2004年建板楼  -"
+        #   "高楼层(共12层)  -"
+        #   "-"
+        m = re.match(r"^(.*?)(\(共(\d+)层\))*((\d+)年建(.*))*$",
+                     non_tag[3].strip(" -"))
         if not m:
-            self.log.error("Error in parsing lianjia house list no_spans[3]: " +
-                           no_spans[3])
-        house["house_floor"] = m.group(1)
-        house["house_total_floor"] = int(m.group(2))
-        house["completion_year"] = int(m.group(3))
-        house["building_type"] = m.group(4)
-        house["region"] = no_spans[4]
+            self.log.error("Error in parsing lianjia house list non_tag[3]: " +
+                           non_tag[3])
+        if m.group(1):
+            house["house_floor"] = m.group(1)
+        if m.group(3):
+            house["house_total_floor"] = int(m.group(3))
+        if m.group(5):
+            house["completion_year"] = int(m.group(5))
+        if m.group(6):
+            house["building_type"] = m.group(6)
+        house["region"] = non_tag[4]
         # In some case, "有电梯" part in the end is missing, hence
         # subsidizing "|" for parser.
         _0, _1, _2, _3, _4, _5 = [
-            s.strip() for s in (no_spans[2] + "|").split("|")][0:6]
+            s.strip() for s in (non_tag[2] + "|||").split("|")][0:6]
         house["house_layout"] = _1
         house["house_area"] = float(re.search(r"[\d\.]+", _2).group())
-        house["house_orientation"] = _3
-        house["decoration"] = _4
+        if _3:
+            house["house_orientation"] = _3
+        if _4:
+            house["decoration"] = _4
         if _5:
             house["elevator"] = _5
+        # Parse non_tag[5], example values:
+        #   "1人关注 / 共0次带看 / 刚刚发布"
+        #   "1人关注 / 共0次带看 / 10天以前发布"
+        #   "1人关注 / 共0次带看 / 一年前发布"
         m = re.match(
-            r"^(\d+)人关注 / 共(\d+)次带看 / (\d+)天以前发布",
-            no_spans[5])
+            r"^(\d+)人关注 / 共(\d+)次带看 / (\d*)(.*?)(以)*(前)*发布",
+            non_tag[5])
+        if not m:
+            self.log.error("Error in parsing lianjia house list non_tag[5]: " +
+                           non_tag[5])
         house["followers_count"] = int(m.group(1))
         house["visitors_count"] = int(m.group(2))
 
+        # Parse time delta.
+        unit = m.group(4)
+        if unit == "刚刚":
+            days = 0
+        elif unit == "天":
+            days = int(m.group(3))
+        elif unit == "个月":
+            days = int(m.group(3)) * 30 + 1
+        elif unit == "一年":
+            days = 365 + 1
+
         crawled_date = datetime.date.today()
-        posted_date = crawled_date - datetime.timedelta(days=int(m.group(3)))
+        posted_date = crawled_date - datetime.timedelta(days=days)
         house["crawled_date"] = str(crawled_date)
         house["posted_date"] = str(posted_date)
 
         # Tuple(regex, column name, column type)
-        SPAN_SCHEMA = [
+        TAG_SCHEMA = [
             ("(距离.*)", "location_near", str),
             (r"(\d+)", "asking_total_price", int),
             (r"单价(\d+)元/平米", "asking_unit_price", int),
             ("关注", "", None),
         ]
 
-        spans = [s[len("span"):] for s in raw if s.startswith("span")]
-        for text in spans:
+        tags = [s[len("tag:"):] for s in raw if s.startswith("tag:")]
+        for text in tags:
             matched = False
-            for column in SPAN_SCHEMA:
+            for column in TAG_SCHEMA:
                 m = re.match(column[0], text)
                 if m:
                     if column[1]:

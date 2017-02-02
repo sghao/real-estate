@@ -83,9 +83,10 @@ class MysqlStorage:
         self.db.commit()
 
     def insert_lianjia_house_list(self, house_list):
-        self.log.info("Inserting to lianjia_house_list: ",
+        self.log.info("Inserting to lianjia_house_list: %s",
                       ", ".join([str(h["house_id"]) for h in house_list]))
 
+        inserted = 0
         cursor = self.db.cursor()
         for house in house_list:
             sql = self._get_insert_statement(
@@ -98,6 +99,7 @@ class MysqlStorage:
             if result == 0:
                 self.log.info("Ignored duplicate house: house_id=%d", house_id)
             elif result == 1:
+                inserted += 1
                 self.log.info("Successfully inserted: house_id=%d", house_id)
             else:
                 self.log.fatal(
@@ -105,6 +107,7 @@ class MysqlStorage:
                     ": %d, %d, %s", house_id, result, house)
 
         self.db.commit()
+        return inserted
 
     def _get_insert_statement(
             self, table, column_values, ignore_duplicate=False):
