@@ -40,6 +40,7 @@ class MysqlStorage:
         self.db.commit()
         self.log.info("Committed %d new house into house list.",
                       new_house_count)
+        return new_house_count
 
     def _get_insert_house_statements(self, house):
         return """

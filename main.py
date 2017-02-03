@@ -63,29 +63,45 @@ def fetch_webcontent(url):
     return webcontent
 
 
+def crawl_bjjs_house_list_page(page, storage):
+    url = URL_PATTERN % page
+    webcontent = fetch_webcontent(url)
+
+    parser = bjjs_parser.HouseListParser()
+    parser.feed(webcontent)
+    parser.close()
+
+    house_list = parser.get_house_list()
+    log.info("Parsed house list, got %d houses.", len(house_list))
+
+    log.info("Persisting house list: %s",
+             ", ".join([str(h[0]) for h in house_list]))
+    return storage.insert_bjjs_house_list(house_list)
+
+
 def crawl_bjjs_house_list(args):
     init_localdir()
     storage = init_storage(args)
 
-    for page in xrange(1852, 0, -1):
+    consecutive_no_new_house_pages = 0
+    for page in range(1, 100000):  # Used as infinite.
         log.info("Begin crawl house list page: page=%d", page)
 
-        url = URL_PATTERN % page
-        webcontent = fetch_webcontent(url)
-        with open("data/page-%05d" % page, "w") as f:
-            f.write(webcontent)
+        try:
+            inserted = crawl_bjjs_house_list_page(page, storage)
+        except Exception as e:
+            log.error("Error while crawling page: %d", page)
+            log.exception(e)
+            continue
 
-        log.info("Parsing house list.")
-        parser = bjjs_parser.HouseListParser()
-        parser.feed(webcontent)
-        parser.close()
-
-        house_list = parser.get_house_list()
-        log.info("Parsed house list, got %d houses.", len(house_list))
-
-        log.info("Persisting house list: %s",
-                 ", ".join([str(h[0]) for h in house_list]))
-        storage.insert_bjjs_house_list(house_list)
+        if inserted == 0:
+            consecutive_no_new_house_pages += 1
+        else:
+            consecutive_no_new_house_pages = 0
+        if consecutive_no_new_house_pages == 5:
+            log.info("No new house inserted for the last 5 consecutive pages. "
+                     "I guess we've already crawled the rest, quiting.")
+            return
 
         log.info("Sleeping between crawl.")
         time.sleep(random.randint(3, 10))
