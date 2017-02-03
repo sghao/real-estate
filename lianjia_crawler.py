@@ -13,6 +13,8 @@ import lianjia_parser
 
 
 def fetch_webcontent(url):
+    time.sleep(random.randint(60, 120))  # rate control
+
     if os.path.exists("webpage"):
         os.remove("webpage")
 
@@ -60,7 +62,7 @@ class LianjiaCrawler:
 
         self.storage = storage
 
-    def crawl_house_list_page(self, district, page):
+    def _crawl_house_list_page(self, district, page):
         self.log.info("Crawling house list from seed, page: %s, %d",
                       district, page)
 
@@ -103,7 +105,7 @@ class LianjiaCrawler:
 
             for page in range(1, num_pages + 1):
                 try:
-                    inserted = self.crawl_house_list_page(seed_district, page)
+                    inserted = self._crawl_house_list_page(seed_district, page)
                 except Exception as e:
                     self.log.error("Error while crawling page: %s, %d",
                                    seed_district, page)
@@ -115,9 +117,6 @@ class LianjiaCrawler:
                         "I believe we've crawled all remaining pages, skipping"
                         " the rest of pages and move on to next seed.")
                     break
-
-                self.log.info("Sleeping between crawl.")
-                time.sleep(random.randint(60, 120))
 
     def crawl(self):
         self.crawl_house_list()

@@ -26,16 +26,16 @@ class MysqlStorage:
         new_house_count = 0
         for house in house_list:
             insert_statement = self._get_insert_house_statements(house)
-            result = cursor.execute(insert_statement)
-            if result == 0:
+            inserted = cursor.execute(insert_statement)
+            if inserted == 0:
                 self.log.info("Duplicate house, ignored: %d", house[0])
-            elif result == 1:
+            elif inserted == 1:
                 new_house_count += 1
                 self.log.info("Successfully inserted house: %d", house[0])
             else:
                 self.log.fatal(
                     "Unexpected result while inserting house: %d, %d",
-                    house[0], result)
+                    house[0], inserted)
 
         self.db.commit()
         self.log.info("Committed %d new house into house list.",
@@ -67,21 +67,22 @@ class MysqlStorage:
             column_values=house_detail)
 
         cursor = self.db.cursor()
-        result = cursor.execute(sql)
+        inserted = cursor.execute(sql)
 
         house_id = house_detail["house_id"]
-        if result == 0:
+        if inserted == 0:
             self.log.info("Ignored duplicate house: house_id=%d", house_id)
-        elif result == 1:
+        elif inserted == 1:
             self.log.info(
                 "Successfully inserted house into house_detail: house_id=%d",
                 house_id)
         else:
             self.log.fatal(
                 "Unexpected result while inserting house into house_detail: "
-                "%d, %d", house_id, result)
+                "%d, %d", house_id, inserted)
 
         self.db.commit()
+        return inserted
 
     def insert_lianjia_house_list(self, house_list):
         self.log.info("Inserting to lianjia_house_list: %s",
@@ -94,18 +95,18 @@ class MysqlStorage:
                 table="lianjia_house_list",
                 ignore_duplicate=True,
                 column_values=house)
-            result = cursor.execute(sql)
+            inserted = cursor.execute(sql)
 
             house_id = house["house_id"]
-            if result == 0:
+            if inserted == 0:
                 self.log.info("Ignored duplicate house: house_id=%d", house_id)
-            elif result == 1:
+            elif inserted == 1:
                 inserted += 1
                 self.log.info("Successfully inserted: house_id=%d", house_id)
             else:
                 self.log.fatal(
                     "Unexpected result while inserting into lianjia_house_list"
-                    ": %d, %d, %s", house_id, result, house)
+                    ": %d, %d, %s", house_id, inserted, house)
 
         self.db.commit()
         return inserted
