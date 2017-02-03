@@ -70,16 +70,10 @@ def crawl_bjjs_house_list(args):
     for page in xrange(1852, 0, -1):
         log.info("Begin crawl house list page: page=%d", page)
 
-        # TODO(sghao): During the Chinese New Year, the service is temporarily
-        # unavailable. Switching to local cache to unblock further development.
-        # We'll revert this back once service is up.
-        # url = URL_PATTERN % page
-        # webcontent = fetch_webcontent(url)
-        # with open("data/page-%05d" % page, "w") as f:
-        #     f.write(webcontent)
-
-        with open("data/page-%05d" % page, "r") as f:
-            webcontent = f.read()
+        url = URL_PATTERN % page
+        webcontent = fetch_webcontent(url)
+        with open("data/page-%05d" % page, "w") as f:
+            f.write(webcontent)
 
         log.info("Parsing house list.")
         parser = bjjs_parser.HouseListParser()
@@ -108,10 +102,8 @@ def crawl_bjjs_house_detail(args):
     for house_id in house_ids:
         log.info("Begin crawl house detail page: house_id=%d", house_id)
 
-        # TODO(sghao): During the Chinese New Year, the service is temporarily
-        # unavailable. Using local cache instead for development.
-        with open("data/house_detail-%d" % house_id, "r") as f:
-            webcontent = f.read()
+        url = "http://210.75.213.188/shh/portal/bjjs2016/audit_house_detail.aspx?House_Id=%d" % house_id
+        webcontent = fetch_webcontent(url)
 
         log.info("Parsing house detail: %d", house_id)
         parser = bjjs_parser.HouseDetailParser()
