@@ -56,25 +56,25 @@ class HouseDetailParser(HTMLParser.HTMLParser):
     # Tuple(name, mysql column name, column type, regex for value
     # extraction)
     HOUSE_DETAIL_SCHEMA = [
-        ("核验编号", "verification_id", str, ".*"),
-        ("区　　县", "district", str, ".*"),
-        ("小　　区", "compound_name", str, ".*"),
-        ("朝　　向", "house_orientation", str, ".*"),
-        ("户　　型", "house_layout", str, ".*"),
-        ("建筑面积", "house_area", float, r"[\d\.]+"),
-        ("所在楼层", "house_floor", str, ".*"),
-        ("总 层 数", "house_total_floor", str, ".*"),
-        ("建成年代", "completion_year", int, r"\d+"),
-        ("规划用途", "planned_use", str, ".*"),
-        ("装修情况", "decoration", str, ".*"),
-        ("拟售价格", "proposed_price", float, r"[\d\.]+"),
-        ("经纪机构", "agency", str, ".*"),
-        ("联系电话", "agency_phone", str, ".*"),
-        ("经 纪 人", "agent", str, ".*"),
-        ("联系电话", "agent_phone", str, ".*"),
-        ("所有权状态", "ownership_state", str, ".*"),
-        ("抵押状态", "mortgage_state", str, ".*"),
-        ("查封状态", "seal_state", str, ".*"),
+        ("核验编号", "verification_id", int, r"(\d+)"),
+        ("区　　县", "district", str, "(.*)"),
+        ("小　　区", "compound_name", str, "(.*)"),
+        ("朝　　向", "house_orientation", str, "(.*)"),
+        ("户　　型", "house_layout", str, "(.*)"),
+        ("建筑面积", "house_area", float, r"([\d\.]+)平米"),
+        ("所在楼层", "house_floor", str, r"([\-]{0,1}\d+层)"),
+        ("总 层 数", "house_total_floor", str, r"(\d+层\(所在楼栋地上层数\))"),
+        ("建成年代", "completion_year", int, r"(\d+)"),
+        ("规划用途", "planned_use", str, "(.*)"),
+        ("装修情况", "decoration", str, "(.*)"),
+        ("拟售价格", "proposed_price", float, r"([\d\.]+)万元"),
+        ("经纪机构", "agency", str, "(.*)"),
+        ("联系电话", "agency_phone", str, r"(\d+)"),
+        ("经 纪 人", "agent", str, "(.*)"),
+        ("联系电话", "agent_phone", str, r"(\d+)"),
+        ("所有权状态", "ownership_state", str, "(.*)"),
+        ("抵押状态", "mortgage_state", str, "(.*)"),
+        ("查封状态", "seal_state", str, "(.*)"),
     ]
 
     def __init__(self):
@@ -93,13 +93,14 @@ class HouseDetailParser(HTMLParser.HTMLParser):
         pairs = zip(self.house_detail_raw,
                     HouseDetailParser.HOUSE_DETAIL_SCHEMA)
         for ((key, value), schema) in pairs:
-            if key <> schema[0]:
+            if key != schema[0]:
                 self.log.error(
                     "Unexpected column from house detail: %s, %s, %s",
                     key, schema, self.house_detail_raw)
 
-            value = re.search(schema[3], value).group()
-            house_detail[schema[1]] = schema[2](value)
+            m = re.match(schema[3], value) if value else None
+            if m:
+                house_detail[schema[1]] = schema[2](m.group(1))
 
         return house_detail
 
@@ -116,6 +117,6 @@ class HouseDetailParser(HTMLParser.HTMLParser):
             return
 
         if self.last_tag == "th":
-            self.house_detail_raw.append([data])
+            self.house_detail_raw.append([data, None])
         elif self.last_tag == "td":
-            self.house_detail_raw[-1].append(data)
+            self.house_detail_raw[-1][1] = data
