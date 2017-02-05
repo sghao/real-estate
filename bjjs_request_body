@@ -1,0 +1,49 @@
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="district_id"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="plot"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="sell_money_from"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="sell_money_to"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="set_type"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="organize_type"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="broker_title"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="buildarea_from"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="buildarea_to"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="house_from_cert_id"
+
+
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="audit_on"
+
+%(date)s
+------WebKitFormBoundaryp2YEic9nyL7LewNv
+Content-Disposition: form-data; name="postback"
+
+1
+------WebKitFormBoundaryp2YEic9nyL7LewNv--

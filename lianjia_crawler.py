@@ -48,7 +48,7 @@ class LianjiaCrawler:
             "page": "pg%d" % page,
         }
 
-        webcontent = self.web_fetcher.fetch(url)
+        webcontent = self.web_fetcher.get(url)
         parser = lianjia_parser.HouseListParser()
         parser.feed(webcontent)
         parser.close()
@@ -68,7 +68,7 @@ class LianjiaCrawler:
                 "district": seed_district,
                 "page": "",
             }
-            text = self.web_fetcher.fetch(url)
+            text = self.web_fetcher.get(url)
             house_list_count = int(re.search(r"count: (\d+),", text).group(1))
             self.log.info("Total houses on list: %d", house_list_count)
             # They have 30 houses per page.
