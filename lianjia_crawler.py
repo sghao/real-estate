@@ -2,35 +2,10 @@
 # coding: utf-8
 
 import logging
-import os
-import random
 import re
-import subprocess
-import time
-import urllib2
 
 import lianjia_parser
-
-
-def fetch_webcontent(url):
-    time.sleep(random.randint(60, 120))  # rate control
-
-    if os.path.exists("webpage"):
-        os.remove("webpage")
-
-    # TODO(sghao): Is there a more lightweight way to fetch webpage with
-    # cookie?
-    subprocess.call([
-        "wget",
-        "--load-cookies",
-        "cookies.txt",  # You can get this from firefox Export Cookies.
-        "-O",
-        "webpage",
-        url,
-    ])
-    with open("webpage", "r") as f:
-        content = f.read()
-    return content
+import web_fetcher
 
 
 class LianjiaCrawler:
@@ -62,6 +37,8 @@ class LianjiaCrawler:
 
         self.storage = storage
 
+        self.web_fetcher = web_fetcher.WebFetcher()
+
     def _crawl_house_list_page(self, district, page):
         self.log.info("Crawling house list from seed, page: %s, %d",
                       district, page)
@@ -71,7 +48,7 @@ class LianjiaCrawler:
             "page": "pg%d" % page,
         }
 
-        webcontent = fetch_webcontent(url)
+        webcontent = self.web_fetcher.fetch(url)
         parser = lianjia_parser.HouseListParser()
         parser.feed(webcontent)
         parser.close()
@@ -91,7 +68,7 @@ class LianjiaCrawler:
                 "district": seed_district,
                 "page": "",
             }
-            text = fetch_webcontent(url)
+            text = self.web_fetcher.fetch(url)
             house_list_count = int(re.search(r"count: (\d+),", text).group(1))
             self.log.info("Total houses on list: %d", house_list_count)
             # They have 30 houses per page.

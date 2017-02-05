@@ -2,18 +2,9 @@
 # coding: utf-8
 
 import logging
-import random
-import sys
-import time
-import urllib2
 
 import bjjs_parser
-
-
-def fetch_webcontent(url):
-    time.sleep(random.randint(3, 10))  # rate control
-    webcontent = urllib2.urlopen(url).read()
-    return webcontent
+import web_fetcher
 
 
 class BjjsCrawler:
@@ -22,12 +13,14 @@ class BjjsCrawler:
 
         self.storage = storage
 
+        self.web_fetcher = web_fetcher.WebFetcher()
+
     def _crawl_house_list_page(self, page):
         URL_PATTERN = \
             "http://210.75.213.188/shh/portal/bjjs2016/" \
             "audit_house_list.aspx?pagenumber=%d&pagesize=15"
         url = URL_PATTERN % page
-        webcontent = fetch_webcontent(url)
+        webcontent = self.web_fetcher.fetch(url)
 
         parser = bjjs_parser.HouseListParser()
         parser.feed(webcontent)
@@ -43,7 +36,7 @@ class BjjsCrawler:
 
     def crawl_house_list(self):
         consecutive_no_new_house_pages = 0
-        for page in range(492, 100000):  # Used as infinite.
+        for page in range(1, 100000):  # Used as infinite.
             self.log.info("Begin crawl house list page: page=%d", page)
 
             try:
@@ -68,7 +61,7 @@ class BjjsCrawler:
             "http://210.75.213.188/shh/portal/bjjs2016/" \
             "audit_house_detail.aspx?House_Id=%d"
         url = URL_PATTERN % house_id
-        webcontent = fetch_webcontent(url)
+        webcontent = self.web_fetcher.fetch(url)
 
         self.log.info("Parsing house detail: %d", house_id)
         parser = bjjs_parser.HouseDetailParser()
