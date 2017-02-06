@@ -27,8 +27,6 @@ class BjjsCrawler:
         """
         date = datetime.date.today()
         while True:
-            date = date - datetime.timedelta(days=1)
-
             self.log.info("Begin crawling date: %s", date)
             total_parsed_house, total_updated_house = \
                 self._crawl_house_list_with_filters({"date": date})
@@ -41,6 +39,8 @@ class BjjsCrawler:
                 self.log.info("No new house found in date %s, stopping here.",
                               date)
                 break
+
+            date = date - datetime.timedelta(days=1)
 
     def _crawl_house_list_with_filters(self, filters):
         """Crawl all house list using given filters.
